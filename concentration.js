@@ -1,7 +1,7 @@
 /*
- * Version 2.0
+ * Version 2.01
  * Original By Robin Kuiper
- * Changes in Version 2.0 and greater by Victor B
+ * Changes in Version 2.01 and greater by Victor B
  * Discord: Vic#5196
  * Roll20: https://app.roll20.net/users/3135709/victor-b
  * Github: https://github.com/vicberg/CombatMaster
@@ -39,6 +39,7 @@ var Concentration = Concentration || (function() {
 
         if (msg.type != 'api') return;
 
+        log(msg)
         // Split the message into command and argument(s)
         let args = msg.content.split(' ');
         let command = args.shift().substring(1);
@@ -131,6 +132,9 @@ var Concentration = Concentration || (function() {
     },
 
     addConcentration = (token, playerid, spell) => {
+        log(playerid)
+        log(spell)
+        log(token)
         const marker = state[state_name].config.statusmarker
         let tag      = getIconTag(state[state_name].config.iconType,state[state_name].config.statusmarker)
         let character = getObj('character', token.get('represents'));
@@ -159,7 +163,9 @@ var Concentration = Concentration || (function() {
     },
 
     handleConcentrationSpellCast = (msg) => {
+        log('Con Spell Cast')
         const marker = state[state_name].config.statusmarker
+        let tag      = getIconTag(state[state_name].config.iconType,state[state_name].config.statusmarker)
 
         let character_name = msg.content.match(/charname=([^\n{}]*[^"\n{}])/);            
         character_name = RegExp.$1;
@@ -178,7 +184,7 @@ var Concentration = Concentration || (function() {
             _type: 'graphic',
             _pageid: player.get('lastpage')
         }
-        search_attributes['status_'+marker] = true;
+        search_attributes[tag] = true;
         let is_concentrating = (findObjs(search_attributes).length > 0);
 
         if(is_concentrating){
@@ -186,8 +192,8 @@ var Concentration = Concentration || (function() {
         }else{
             represented_tokens.forEach(token => {
                 let attributes = {};
-                attributes['status_'+marker] = true;
-                token.set(attributes);
+                attributes[tag] = true;
+                addMarker(token,tag)
                 message = '<b>'+character_name+'</b> is now concentrating on <b>'+spell_name+'</b>.';
             });
         }
@@ -313,6 +319,7 @@ var Concentration = Concentration || (function() {
         let statusmarker
         let statusmarkers
         
+        log(marker)
         if (tokenObj.get('statusmarkers')) {
             statusmarkers = tokenObj.get('statusmarkers').split(',')
         } else {
@@ -337,6 +344,7 @@ var Concentration = Concentration || (function() {
         }
         
         tokenObj.set('statusmarkers', statusmarkers.join())
+        log(tokenObj.get('statusmarkers'))
     },
 
     removeMarker = function(tokenObj, marker) {
